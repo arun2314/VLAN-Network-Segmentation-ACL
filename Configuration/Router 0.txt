@@ -1,0 +1,44 @@
+enable
+configure terminal
+
+interface gigabitethernet 0/0.10
+encapsulation dot1Q 10
+ip address 172.16.10.1 255.255.255.0
+ip access-group ALLOW-V10 in
+exit
+
+interface gigabitethernet 0/0.20
+encapsulation dot1Q 20
+ip address 192.168.20.1 255.255.255.0
+ip access-group BLOCK-V20 in
+exit
+
+interface gigabitethernet 0/0.30
+encapsulation dot1Q 30
+ip address 10.10.30.1 255.255.255.0
+ip access-group ALLOW-V30 in
+exit
+
+interface gigabitethernet 0/0.1
+ip address 0.0.0.4 255.255.255.252
+exit
+
+! VLAN 10 can communicate with VLAN 60 and VLAN 80
+ip access-list extended ALLOW-V10
+permit ip 172.16.10.0 0.0.0.255 172.16.60.0 0.0.0.255
+permit ip 172.16.10.0 0.0.0.255 10.10.80.0 0.0.0.255
+exit
+
+! VLAN 20 can't communicate with any VLAN' s
+ip access-list extended ALLOW-V20
+deny ip any any
+
+! VLAN 30 can communicate with VLAN 70
+ip access-list extended ALLOW-V30
+permit ip 10.10.30.0 0.0.0.255 192.168.70.0 0.0.0.255
+exit
+
+! Static route 
+ip route 172.16.60.0 255.255.255.0 0.0.0.5
+ip route 192.168.70.0 255.255.255.0 0.0.0.5
+ip route 10.10.80.0 255.255.255.0 0.0.0.5
